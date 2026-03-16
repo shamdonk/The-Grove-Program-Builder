@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Golf Warm Up/Mobility</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f1ec;color:#1a1a1a;min-height:100vh}
+.page-header{padding:2rem 1.5rem 1rem;max-width:680px;margin:0 auto}
+.grove-label{font-size:11px;letter-spacing:.12em;color:#2a7a5a;text-transform:uppercase;font-weight:600;margin-bottom:.5rem}
+h1{font-size:2rem;font-weight:700;color:#0d1b2a;line-height:1.2;margin-bottom:.75rem}
+.summary-line{font-size:13px;color:#666;margin-bottom:1.25rem}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.progress-count,.progress-pct{font-size:13px;color:#555}
+.progress-bar-bg{background:#ddd;border-radius:4px;height:6px;margin-bottom:1.5rem}
+.progress-bar-fill{background:#2a7a5a;height:6px;border-radius:4px;transition:width .3s ease;width:0%}
+.container{max-width:680px;margin:0 auto;padding:0 1rem 3rem}
+.section-block{margin-bottom:2rem}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#2a7a5a}
+.section-badge{font-size:11px;font-weight:600;background:#2a7a5a;color:#fff;padding:3px 10px;border-radius:20px}
+.exercise-item{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;border:1px solid #e8e4dc;transition:opacity .2s}
+.exercise-row{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.exercise-row:active{background:#faf8f4}
+.checkbox-wrap{position:relative;flex-shrink:0}
+.checkbox-wrap input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+.checkbox-label{display:block;width:22px;height:22px;border:2px solid #ccc;border-radius:6px;cursor:pointer;transition:all .2s}
+.checkbox-wrap input:checked + .checkbox-label{background:#2a7a5a;border-color:#2a7a5a}
+.checkbox-wrap input:checked + .checkbox-label::after{content:'';display:block;width:5px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);margin:3px 0 0 6px}
+.exercise-info{flex:1;min-width:0}
+.exercise-name{display:block;font-size:15px;font-weight:600;color:#0d1b2a}
+.exercise-sub{display:block;font-size:12px;color:#888;margin-top:2px}
+.exercise-reps{font-size:13px;font-weight:600;color:#2a7a5a;white-space:nowrap;flex-shrink:0}
+.expand-arrow{font-size:10px;color:#aaa;transition:transform .2s;flex-shrink:0}
+.expand-arrow.open{transform:rotate(90deg)}
+.exercise-detail{padding:0 16px 14px 50px}
+.video-wrap{border-radius:8px;overflow:hidden}
+.video-wrap a{display:block;position:relative}
+.video-wrap img{width:100%;display:block;border-radius:8px}
+.play-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:4px 10px;border-radius:4px}
+.exercise-item.done{opacity:.6}
+.exercise-item.done .exercise-name{text-decoration:line-through;color:#aaa}
+.reset-btn{display:block;width:100%;margin-top:.5rem;padding:12px;background:transparent;border:1px solid #ccc;border-radius:10px;font-size:13px;color:#888;cursor:pointer;text-align:center}
+.reset-btn:active{background:#ede9e0}
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div class="grove-label">The Grove Strength &amp; Conditioning</div>
+  <h1>Golf Warm Up/Mobility</h1>
+  <div class="summary-line">Warm-Up  |  Main Lift&nbsp;&nbsp;|&nbsp;&nbsp;7 exercises</div>
+  <div class="progress-row">
+    <span class="progress-count" id="prog-count">0 of 7 complete</span>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar"></div></div>
+</div>
+<div class="container">
+<div class="section-block">
+      <div class="section-header">
+        <span class="section-title">Warm-Up</span>
+        <span class="section-badge">1 Set</span>
+      </div>
+      <div class="exercise-item" id="ex-0">
+      <div class="exercise-row" onclick="toggleExpand(0)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-0" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-0" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">SL RDL </span>
+          <span class="exercise-sub">Bodyweight Only</span>
+        </div>
+        <span class="exercise-reps">2 sets · 10&</span>
+        <span class="expand-arrow" id="arrow-0">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-0" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/TenlXzqlcow" target="_blank"><img src="https://img.youtube.com/vi/TenlXzqlcow/hqdefault.jpg" alt="SL RDL " /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div><div class="exercise-item" id="ex-1">
+      <div class="exercise-row" onclick="toggleExpand(1)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-1" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-1" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">Cat Camel</span>
+          
+        </div>
+        <span class="exercise-reps">2 sets · 6</span>
+        <span class="expand-arrow" id="arrow-1">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-1" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/zvQ_EaBDZoM" target="_blank"><img src="https://img.youtube.com/vi/zvQ_EaBDZoM/hqdefault.jpg" alt="Cat Camel" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div><div class="exercise-item" id="ex-2">
+      <div class="exercise-row" onclick="toggleExpand(2)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-2" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-2" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">T-Spine Rotation</span>
+          
+        </div>
+        <span class="exercise-reps">2 sets · 8&</span>
+        <span class="expand-arrow" id="arrow-2">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-2" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/pqDGrbYgTAc" target="_blank"><img src="https://img.youtube.com/vi/pqDGrbYgTAc/hqdefault.jpg" alt="T-Spine Rotation" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div><div class="exercise-item" id="ex-3">
+      <div class="exercise-row" onclick="toggleExpand(3)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-3" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-3" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">Hip Flexor #1</span>
+          
+        </div>
+        <span class="exercise-reps">1 sets · :60&</span>
+        <span class="expand-arrow" id="arrow-3">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-3" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/KTztUw-N5xQ" target="_blank"><img src="https://img.youtube.com/vi/KTztUw-N5xQ/hqdefault.jpg" alt="Hip Flexor #1" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div>
+    </div>
+<div class="section-block">
+      <div class="section-header">
+        <span class="section-title">Main Lift</span>
+        <span class="section-badge">2–3 Sets</span>
+      </div>
+      <div class="exercise-item" id="ex-4">
+      <div class="exercise-row" onclick="toggleExpand(4)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-4" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-4" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">Side Plank + Glute Abd</span>
+          <span class="exercise-sub">Hold for Exhales or Time</span>
+        </div>
+        <span class="exercise-reps">2 sets · 10&</span>
+        <span class="expand-arrow" id="arrow-4">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-4" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/yIoKDVOrYag" target="_blank"><img src="https://img.youtube.com/vi/yIoKDVOrYag/hqdefault.jpg" alt="Side Plank + Glute Abd" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div><div class="exercise-item" id="ex-5">
+      <div class="exercise-row" onclick="toggleExpand(5)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-5" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-5" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">SL Bridge</span>
+          <span class="exercise-sub">Hold for :02 @ Top</span>
+        </div>
+        <span class="exercise-reps">2 sets · 10&</span>
+        <span class="expand-arrow" id="arrow-5">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-5" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/79IbpOt9RmI" target="_blank"><img src="https://img.youtube.com/vi/79IbpOt9RmI/hqdefault.jpg" alt="SL Bridge" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div><div class="exercise-item" id="ex-6">
+      <div class="exercise-row" onclick="toggleExpand(6)">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="cb-6" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+          <label for="cb-6" class="checkbox-label" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="exercise-info">
+          <span class="exercise-name">Active Leg Lowering</span>
+          
+        </div>
+        <span class="exercise-reps">2 sets · 10&</span>
+        <span class="expand-arrow" id="arrow-6">&#9658;</span>
+      </div>
+      <div class="exercise-detail" id="detail-6" style="display:none;">
+        <div class="video-wrap"><a href="https://youtu.be/LHZZYBtYukE" target="_blank"><img src="https://img.youtube.com/vi/LHZZYBtYukE/hqdefault.jpg" alt="Active Leg Lowering" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>
+      </div>
+    </div>
+    </div>
+
+<button class="reset-btn" onclick="resetAll()">Reset All Checkboxes</button>
+</div>
+<script>
+function toggleExpand(i){
+  var d=document.getElementById('detail-'+i);
+  var a=document.getElementById('arrow-'+i);
+  var open=d.style.display==='block';
+  d.style.display=open?'none':'block';
+  a.classList.toggle('open',!open);
+}
+function updateProgress(){
+  var all=document.querySelectorAll('.checkbox-wrap input');
+  var checked=document.querySelectorAll('.checkbox-wrap input:checked');
+  var t=all.length, c=checked.length;
+  document.getElementById('prog-count').textContent=c+' of '+t+' complete';
+  document.getElementById('prog-pct').textContent=Math.round(c/t*100)+'%';
+  document.getElementById('prog-bar').style.width=(c/t*100)+'%';
+  all.forEach(function(cb,i){
+    var item=document.getElementById('ex-'+i);
+    if(item) item.classList.toggle('done',cb.checked);
+  });
+}
+function resetAll(){
+  document.querySelectorAll('.checkbox-wrap input').forEach(function(cb){cb.checked=false;});
+  document.querySelectorAll('.exercise-item').forEach(function(el){el.classList.remove('done');});
+  updateProgress();
+}
+</script>
+</body>
+</html>
