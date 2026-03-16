@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grove Program Builder</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+header { background: #0d1b2a; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 12px; }
+header .logo { font-size: 11px; letter-spacing: 0.15em; color: #4a90a4; text-transform: uppercase; }
+header h1 { font-size: 18px; font-weight: 600; color: #e8edf2; }
+.container { max-width: 700px; margin: 0 auto; padding: 2rem 1.25rem; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 1.5rem; margin-bottom: 1.5rem; }
+.card h2 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+.row { display: flex; gap: 10px; margin-bottom: 1rem; }
+.row input { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; outline: none; }
+.row input:focus { border-color: #4a90a4; }
+.ex-card { background: #f9f9f7; border: 1px solid #e5e5e0; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.ex-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ex-num { font-size: 12px; color: #999; font-weight: 500; }
+.remove-btn { font-size: 20px; color: #bbb; cursor: pointer; background: none; border: none; line-height: 1; padding: 0; }
+.remove-btn:hover { color: #e24b4a; }
+.section-pills { display: flex; gap: 6px; margin-bottom: 10px; }
+.pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #ddd; background: #fff; color: #888; cursor: pointer; transition: all 0.15s; }
+.pill.active { background: #0d1b2a; color: #fff; border-color: #0d1b2a; }
+.ex-row { display: grid; grid-template-columns: 1fr 90px 90px; gap: 8px; margin-bottom: 10px; }
+.ex-row input, .search-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; outline: none; width: 100%; }
+.ex-row input:focus, .search-input:focus { border-color: #4a90a4; }
+.search-wrap { position: relative; margin-bottom: 8px; }
+.results-list { position: absolute; top: 38px; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; z-index: 100; max-height: 240px; overflow-y: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.result-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0ee; }
+.result-item:last-child { border-bottom: none; }
+.result-item:hover { background: #f5f5f3; }
+.result-item img { width: 64px; height: 36px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.result-item span { font-size: 13px; color: #1a1a1a; line-height: 1.3; }
+.selected-video { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #e8f4f0; border-radius: 8px; margin-bottom: 8px; }
+.selected-video img { width: 64px; height: 36px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.selected-video .vtitle { font-size: 13px; color: #1a1a1a; flex: 1; line-height: 1.3; }
+.clear-btn { font-size: 12px; color: #888; cursor: pointer; padding: 3px 8px; border: 1px solid #ddd; border-radius: 6px; background: #fff; white-space: nowrap; }
+.clear-btn:hover { border-color: #bbb; }
+.cues-input { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; resize: none; height: 58px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit; }
+.cues-input:focus { border-color: #4a90a4; }
+.searching { padding: 14px; text-align: center; font-size: 13px; color: #999; }
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #bbb; margin: 0 2px; animation: blink 1s infinite; }
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.add-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 8px 16px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 8px; color: #555; margin-bottom: 1.5rem; transition: all 0.15s; }
+.add-btn:hover { background: #f5f5f3; border-color: #bbb; }
+.generate-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: 600; background: #0d1b2a; color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.15s; }
+.generate-btn:hover { opacity: 0.85; }
+.output-area { display: none; margin-top: 1.5rem; }
+.output-area.visible { display: block; }
+.output-label { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.output-box { background: #1a1a1a; border-radius: 10px; padding: 14px; font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace; color: #a8c4b8; white-space: pre-wrap; max-height: 300px; overflow-y: auto; word-break: break-all; }
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.copy-btn, .download-btn { padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.15s; }
+.copy-btn { background: #fff; border: 1px solid #ddd; color: #1a1a1a; }
+.copy-btn:hover { background: #f5f5f3; }
+.download-btn { background: #0d1b2a; border: none; color: #fff; }
+.download-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Grove Strength &amp; Conditioning</div>
+    <h1>Program Builder</h1>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Client info</h2>
+    <div class="row">
+      <input type="text" id="client-name" placeholder="Client name" />
+      <input type="text" id="program-title" placeholder="Program title (optional)" />
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Exercises</h2>
+    <div id="exercises-list"></div>
+    <button class="add-btn" onclick="addExercise()">+ Add exercise</button>
+    <button class="generate-btn" onclick="generate()">Generate program</button>
+  </div>
+
+  <div class="output-area" id="output-area">
+    <div class="output-label">Generated HTML</div>
+    <div class="output-box" id="output-box"></div>
+    <div class="btn-row">
+      <button class="copy-btn" onclick="copyOutput()">Copy HTML</button>
+      <button class="download-btn" onclick="downloadOutput()">Download file</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_KEY = 'AIzaSyCweVSKTs5CSguDGxK7kcFLs2-jqaIh7ak';
+const CHANNEL_ID = 'UC_YXjkeRGOhdkZCxh3mu-DQ';
+let exercises = [];
+let timers = {};
+
+function addExercise() {
+  exercises.push({ id: Date.now(), name: '', sets: '', reps: '', cues: '', video: null, section: 'main', vq: '' });
+  render();
+}
+
+function removeExercise(id) {
+  exercises = exercises.filter(e => e.id !== id);
+  render();
+}
+
+function setSection(id, s) {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) { ex.section = s; render(); }
+}
+
+function setField(id, f, v) {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) ex[f] = v;
+}
+
+function clearVideo(id) {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) { ex.video = null; ex.vq = ''; render(); }
+}
+
+function selectVideo(id, vid, title) {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) { ex.video = { id: vid, title }; render(); }
+}
+
+function triggerSearch(id, q) {
+  setField(id, 'vq', q);
+  clearTimeout(timers[id]);
+  const r = document.getElementById('res-' + id);
+  if (!q || q.length < 2) { if (r) r.style.display = 'none'; return; }
+  timers[id] = setTimeout(() => doSearch(id, q), 400);
+}
+
+async function doSearch(id, q) {
+  const r = document.getElementById('res-' + id);
+  if (!r) return;
+  r.style.display = 'block';
+  r.innerHTML = '<div class="searching"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&q=${encodeURIComponent(q)}&type=video&maxResults=6&key=${API_KEY}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.error) { r.innerHTML = `<div class="searching">API error: ${data.error.message}</div>`; return; }
+    if (!data.items || !data.items.length) { r.innerHTML = '<div class="searching">No videos found</div>'; return; }
+    r.innerHTML = data.items.map(item => {
+      const safeTitle = item.snippet.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      return `<div class="result-item" onclick="selectVideo(${id},'${item.id.videoId}','${safeTitle}')">
+        <img src="${item.snippet.thumbnails.default.url}" />
+        <span>${item.snippet.title}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    r.innerHTML = '<div class="searching">Network error — check console</div>';
+  }
+}
+
+function render() {
+  document.getElementById('exercises-list').innerHTML = exercises.map((ex, i) => `
+    <div class="ex-card">
+      <div class="ex-top">
+        <span class="ex-num">Exercise ${i + 1}</span>
+        <button class="remove-btn" onclick="removeExercise(${ex.id})">×</button>
+      </div>
+      <div class="section-pills">
+        <button class="pill ${ex.section==='warmup'?'active':''}" onclick="setSection(${ex.id},'warmup')">Warm-up</button>
+        <button class="pill ${ex.section==='main'?'active':''}" onclick="setSection(${ex.id},'main')">Main lift</button>
+        <button class="pill ${ex.section==='accessory'?'active':''}" onclick="setSection(${ex.id},'accessory')">Accessory</button>
+      </div>
+      <div class="ex-row">
+        <input type="text" placeholder="Exercise name" value="${ex.name}" oninput="setField(${ex.id},'name',this.value);triggerSearch(${ex.id},this.value)" />
+        <input type="text" placeholder="Sets" value="${ex.sets}" oninput="setField(${ex.id},'sets',this.value)" />
+        <input type="text" placeholder="Reps" value="${ex.reps}" oninput="setField(${ex.id},'reps',this.value)" />
+      </div>
+      ${ex.video ? `
+        <div class="selected-video">
+          <img src="https://img.youtube.com/vi/${ex.video.id}/mqdefault.jpg" />
+          <span class="vtitle">${ex.video.title}</span>
+          <button class="clear-btn" onclick="clearVideo(${ex.id})">Clear</button>
+        </div>
+      ` : `
+        <div class="search-wrap">
+          <input class="search-input" type="text" placeholder="Search your Grove videos..." value="${ex.vq}" oninput="triggerSearch(${ex.id},this.value)" />
+          <div class="results-list" id="res-${ex.id}" style="display:none;"></div>
+        </div>
+      `}
+      <textarea class="cues-input" placeholder="Coaching cues (optional)" oninput="setField(${ex.id},'cues',this.value)">${ex.cues}</textarea>
+    </div>
+  `).join('');
+}
+
+function generate() {
+  const client = document.getElementById('client-name').value || 'Client';
+  const title = document.getElementById('program-title').value || client + "'s Program";
+  if (!exercises.length) { alert('Add at least one exercise.'); return; }
+
+  const warmup = exercises.filter(e => e.section === 'warmup');
+  const main = exercises.filter(e => e.section === 'main');
+  const acc = exercises.filter(e => e.section === 'accessory');
+
+  const exBlock = ex => `
+    <div class="exercise">
+      <div class="ex-header">
+        <span class="ex-name">${ex.name || 'Exercise'}</span>
+        <span class="ex-meta">${[ex.sets ? ex.sets + ' sets' : '', ex.reps || ''].filter(Boolean).join(' · ')}</span>
+      </div>
+      ${ex.cues ? `<p class="ex-cues">${ex.cues}</p>` : ''}
+      ${ex.video ? `<div class="video-wrap"><a href="https://youtu.be/${ex.video.id}" target="_blank"><img src="https://img.youtube.com/vi/${ex.video.id}/hqdefault.jpg" alt="${ex.name}" /><span class="play-label">Watch on YouTube</span></a></div>` : ''}
+    </div>`;
+
+  const section = (label, items) => items.length ? `<section class="block"><h2>${label}</h2>${items.map(exBlock).join('')}</section>` : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1b2a;color:#e8edf2;min-height:100vh}
+header{background:#0d1b2a;border-bottom:1px solid #1e3a5f;padding:1.5rem 1.25rem;text-align:center}
+header .logo{font-size:11px;letter-spacing:.15em;color:#4a90a4;text-transform:uppercase;margin-bottom:6px}
+header h1{font-size:22px;font-weight:600;color:#e8edf2}
+.container{max-width:640px;margin:0 auto;padding:1.5rem 1.25rem}
+.block{margin-bottom:2rem}
+.block h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4a90a4;margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid #1e3a5f}
+.exercise{background:#142235;border-radius:10px;padding:1rem 1.125rem;margin-bottom:10px}
+.ex-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.ex-name{font-size:15px;font-weight:500;color:#e8edf2}
+.ex-meta{font-size:12px;color:#4a90a4}
+.ex-cues{font-size:13px;color:#8fa8bd;line-height:1.5;margin-bottom:10px}
+.video-wrap{margin-top:10px}
+.video-wrap a{display:block;position:relative;border-radius:8px;overflow:hidden}
+.video-wrap img{width:100%;display:block}
+.play-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Grove Strength &amp; Conditioning</div>
+  <h1>${title}</h1>
+</header>
+<div class="container">
+${section('Warm-up', warmup)}
+${section('Main lift', main)}
+${section('Accessory', acc)}
+</div>
+</body>
+</html>`;
+
+  document.getElementById('output-box').textContent = html;
+  document.getElementById('output-area').classList.add('visible');
+  document.getElementById('output-area').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyOutput() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy HTML', 2000);
+  });
+}
+
+function downloadOutput() {
+  const text = document.getElementById('output-box').textContent;
+  const client = document.getElementById('client-name').value || 'client';
+  const filename = client.toLowerCase().replace(/\s+/g, '-') + '-program.html';
+  const blob = new Blob([text], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+addExercise();
+addExercise();
+addExercise();
+</script>
+</body>
+</html>
