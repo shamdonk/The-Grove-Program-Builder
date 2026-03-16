@@ -65,7 +65,7 @@ header h1 { font-size: 18px; font-weight: 600; color: #e8edf2; }
 
 <header>
   <div>
-    <div class="logo">Grove Strength &amp; Conditioning</div>
+    <div class="logo">The Grove Strength &amp; Conditioning</div>
     <h1>Program Builder</h1>
   </div>
 </header>
@@ -103,18 +103,75 @@ let exercises = [];
 let timers = {};
 
 function addExercise() {
-  exercises.push({ id: Date.now(), name: '', sets: '', reps: '', cues: '', video: null, section: 'main', vq: '' });
-  render();
+  const id = Date.now();
+  exercises.push({ id, name: '', sets: '', reps: '', cues: '', video: null, section: 'main', vq: '' });
+  const list = document.getElementById('exercises-list');
+  const card = document.createElement('div');
+  card.className = 'ex-card';
+  card.id = 'card-' + id;
+  card.innerHTML = buildCardHTML(exercises[exercises.length - 1], exercises.length);
+  list.appendChild(card);
+}
+
+function buildCardHTML(ex, num) {
+  return `
+    <div class="ex-top">
+      <span class="ex-num">Exercise ${num}</span>
+      <button class="remove-btn" onclick="removeExercise(${ex.id})">×</button>
+    </div>
+    <div class="section-pills" id="pills-${ex.id}">
+      <button class="pill ${ex.section==='warmup'?'active':''}" onclick="setSection(${ex.id},'warmup')">Warm-up</button>
+      <button class="pill ${ex.section==='main'?'active':''}" onclick="setSection(${ex.id},'main')">Main lift</button>
+      <button class="pill ${ex.section==='accessory'?'active':''}" onclick="setSection(${ex.id},'accessory')">Accessory</button>
+    </div>
+    <div class="ex-row">
+      <input type="text" placeholder="Exercise name" value="${ex.name}" oninput="setField(${ex.id},'name',this.value);triggerSearch(${ex.id},this.value)" />
+      <input type="text" placeholder="Sets" value="${ex.sets}" oninput="setField(${ex.id},'sets',this.value)" />
+      <input type="text" placeholder="Reps" value="${ex.reps}" oninput="setField(${ex.id},'reps',this.value)" />
+    </div>
+    <div id="video-area-${ex.id}">
+      ${searchBoxHTML(ex.id)}
+    </div>
+    <textarea class="cues-input" placeholder="Coaching cues (optional)" oninput="setField(${ex.id},'cues',this.value)">${ex.cues}</textarea>
+  `;
+}
+
+function searchBoxHTML(id) {
+  return `<div class="search-wrap">
+    <input class="search-input" type="text" placeholder="Search your Grove videos..." oninput="triggerSearch(${id},this.value)" />
+    <div class="results-list" id="res-${id}" style="display:none;"></div>
+  </div>`;
+}
+
+function selectedVideoHTML(ex) {
+  return `<div class="selected-video">
+    <img src="https://img.youtube.com/vi/${ex.video.id}/mqdefault.jpg" />
+    <span class="vtitle">${ex.video.title}</span>
+    <button class="clear-btn" onclick="clearVideo(${ex.id})">Clear</button>
+  </div>`;
 }
 
 function removeExercise(id) {
   exercises = exercises.filter(e => e.id !== id);
-  render();
+  const card = document.getElementById('card-' + id);
+  if (card) card.remove();
+  exercises.forEach((ex, i) => {
+    const numEl = document.querySelector('#card-' + ex.id + ' .ex-num');
+    if (numEl) numEl.textContent = 'Exercise ' + (i + 1);
+  });
 }
 
 function setSection(id, s) {
   const ex = exercises.find(e => e.id === id);
-  if (ex) { ex.section = s; render(); }
+  if (!ex) return;
+  ex.section = s;
+  const pillsEl = document.getElementById('pills-' + id);
+  if (pillsEl) {
+    pillsEl.querySelectorAll('.pill').forEach(btn => {
+      const map = { 'Warm-up': 'warmup', 'Main lift': 'main', 'Accessory': 'accessory' };
+      btn.classList.toggle('active', map[btn.textContent] === s);
+    });
+  }
 }
 
 function setField(id, f, v) {
@@ -124,12 +181,19 @@ function setField(id, f, v) {
 
 function clearVideo(id) {
   const ex = exercises.find(e => e.id === id);
-  if (ex) { ex.video = null; ex.vq = ''; render(); }
+  if (!ex) return;
+  ex.video = null;
+  ex.vq = '';
+  const area = document.getElementById('video-area-' + id);
+  if (area) area.innerHTML = searchBoxHTML(id);
 }
 
 function selectVideo(id, vid, title) {
   const ex = exercises.find(e => e.id === id);
-  if (ex) { ex.video = { id: vid, title }; render(); }
+  if (!ex) return;
+  ex.video = { id: vid, title };
+  const area = document.getElementById('video-area-' + id);
+  if (area) area.innerHTML = selectedVideoHTML(ex);
 }
 
 function triggerSearch(id, q) {
@@ -161,40 +225,6 @@ async function doSearch(id, q) {
   } catch(e) {
     r.innerHTML = '<div class="searching">Network error — check console</div>';
   }
-}
-
-function render() {
-  document.getElementById('exercises-list').innerHTML = exercises.map((ex, i) => `
-    <div class="ex-card">
-      <div class="ex-top">
-        <span class="ex-num">Exercise ${i + 1}</span>
-        <button class="remove-btn" onclick="removeExercise(${ex.id})">×</button>
-      </div>
-      <div class="section-pills">
-        <button class="pill ${ex.section==='warmup'?'active':''}" onclick="setSection(${ex.id},'warmup')">Warm-up</button>
-        <button class="pill ${ex.section==='main'?'active':''}" onclick="setSection(${ex.id},'main')">Main lift</button>
-        <button class="pill ${ex.section==='accessory'?'active':''}" onclick="setSection(${ex.id},'accessory')">Accessory</button>
-      </div>
-      <div class="ex-row">
-        <input type="text" placeholder="Exercise name" value="${ex.name}" oninput="setField(${ex.id},'name',this.value);triggerSearch(${ex.id},this.value)" />
-        <input type="text" placeholder="Sets" value="${ex.sets}" oninput="setField(${ex.id},'sets',this.value)" />
-        <input type="text" placeholder="Reps" value="${ex.reps}" oninput="setField(${ex.id},'reps',this.value)" />
-      </div>
-      ${ex.video ? `
-        <div class="selected-video">
-          <img src="https://img.youtube.com/vi/${ex.video.id}/mqdefault.jpg" />
-          <span class="vtitle">${ex.video.title}</span>
-          <button class="clear-btn" onclick="clearVideo(${ex.id})">Clear</button>
-        </div>
-      ` : `
-        <div class="search-wrap">
-          <input class="search-input" type="text" placeholder="Search your Grove videos..." value="${ex.vq}" oninput="triggerSearch(${ex.id},this.value)" />
-          <div class="results-list" id="res-${ex.id}" style="display:none;"></div>
-        </div>
-      `}
-      <textarea class="cues-input" placeholder="Coaching cues (optional)" oninput="setField(${ex.id},'cues',this.value)">${ex.cues}</textarea>
-    </div>
-  `).join('');
 }
 
 function generate() {
@@ -246,7 +276,7 @@ header h1{font-size:22px;font-weight:600;color:#e8edf2}
 </head>
 <body>
 <header>
-  <div class="logo">Grove Strength &amp; Conditioning</div>
+  <div class="logo">The Grove Strength &amp; Conditioning</div>
   <h1>${title}</h1>
 </header>
 <div class="container">
