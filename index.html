@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grove Program Builder</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+header { background: #0d1b2a; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 12px; }
+header .logo { font-size: 11px; letter-spacing: 0.15em; color: #4a90a4; text-transform: uppercase; }
+header h1 { font-size: 18px; font-weight: 600; color: #e8edf2; }
+.container { max-width: 700px; margin: 0 auto; padding: 2rem 1.25rem; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 1.5rem; margin-bottom: 1.5rem; }
+.card h2 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+.row { display: flex; gap: 10px; margin-bottom: 1rem; }
+.row input { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; outline: none; }
+.row input:focus { border-color: #4a90a4; }
+.ex-card { background: #f9f9f7; border: 1px solid #e5e5e0; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.ex-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ex-num { font-size: 12px; color: #999; font-weight: 500; }
+.remove-btn { font-size: 20px; color: #bbb; cursor: pointer; background: none; border: none; line-height: 1; padding: 0; }
+.remove-btn:hover { color: #e24b4a; }
+.section-pills { display: flex; gap: 6px; margin-bottom: 10px; }
+.pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #ddd; background: #fff; color: #888; cursor: pointer; transition: all 0.15s; }
+.pill.active { background: #0d1b2a; color: #fff; border-color: #0d1b2a; }
+.ex-row { display: grid; grid-template-columns: 1fr 90px 90px; gap: 8px; margin-bottom: 10px; }
+.ex-row input, .search-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; outline: none; width: 100%; }
+.ex-row input:focus, .search-input:focus { border-color: #4a90a4; }
+.search-wrap { position: relative; margin-bottom: 8px; }
+.results-list { position: absolute; top: 38px; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; z-index: 100; max-height: 240px; overflow-y: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.result-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0ee; }
+.result-item:last-child { border-bottom: none; }
+.result-item:hover { background: #f5f5f3; }
+.result-item img { width: 64px; height: 36px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.result-item span { font-size: 13px; color: #1a1a1a; line-height: 1.3; }
+.selected-video { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #e8f4f0; border-radius: 8px; margin-bottom: 8px; }
+.selected-video img { width: 64px; height: 36px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.selected-video .vtitle { font-size: 13px; color: #1a1a1a; flex: 1; line-height: 1.3; }
+.clear-btn { font-size: 12px; color: #888; cursor: pointer; padding: 3px 8px; border: 1px solid #ddd; border-radius: 6px; background: #fff; white-space: nowrap; }
+.clear-btn:hover { border-color: #bbb; }
+.cues-input { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; resize: none; height: 58px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit; }
+.cues-input:focus { border-color: #4a90a4; }
+.searching { padding: 14px; text-align: center; font-size: 13px; color: #999; }
+.add-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 8px 16px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 8px; color: #555; margin-bottom: 1.5rem; transition: all 0.15s; }
+.add-btn:hover { background: #f5f5f3; border-color: #bbb; }
+.generate-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: 600; background: #0d1b2a; color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.15s; }
+.generate-btn:hover { opacity: 0.85; }
+.output-area { display: none; margin-top: 1.5rem; }
+.output-area.visible { display: block; }
+.output-label { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.output-box { background: #1a1a1a; border-radius: 10px; padding: 14px; font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace; color: #a8c4b8; white-space: pre-wrap; max-height: 300px; overflow-y: auto; word-break: break-all; }
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.copy-btn, .download-btn { padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.15s; }
+.copy-btn { background: #fff; border: 1px solid #ddd; color: #1a1a1a; }
+.copy-btn:hover { background: #f5f5f3; }
+.download-btn { background: #0d1b2a; border: none; color: #fff; }
+.download-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <img src="Logo.PNG" alt="The Grove Strength & Conditioning" style="height: 100px;">
+    <h1>Program Builder</h1>
+  </div>
+</header>
+<div class="container">
+  <div class="card">
+    <h2>Client info</h2>
+    <div class="row">
+      <input type="text" id="client-name" placeholder="Client name" />
+      <input type="text" id="program-title" placeholder="Program title (optional)" />
+    </div>
+  </div>
+  <div class="card">
+    <h2>Exercises</h2>
+    <div id="exercises-list"></div>
+    <button class="add-btn" onclick="addExercise()">+ Add exercise</button>
+    <button class="generate-btn" onclick="generate()">Generate program</button>
+  </div>
+  <div class="output-area" id="output-area">
+    <div class="output-label">Generated HTML</div>
+    <div class="output-box" id="output-box"></div>
+    <div class="btn-row">
+      <button class="copy-btn" onclick="copyOutput()">Copy HTML</button>
+      <button class="download-btn" onclick="downloadOutput()">Download file</button>
+    </div>
+  </div>
+</div>
+<script>
+const VIDEOS = [
+  {"id":"VKxlUoKe2DE","title":"1 Step Scoop Toss"},
+  {"id":"FBDTPBEAdIM","title":"Alternating DB Press"},
+  {"id":"YVYrl4xDF_k","title":"Band Assisted Push Up"},
+  {"id":"OhvsuZ7wzzo","title":"Barbell RDL"},
+  {"id":"k2JDbNhDSA0","title":"Barbell Inverted Row"},
+  {"id":"4VqODlDFlmo","title":"Barbell Chin Up"},
+  {"id":"d4snkv2zQiE","title":"Barbell Reverse Lunge"},
+  {"id":"Hsn25yaaV2A","title":"Barbell SL RDL"},
+  {"id":"cjSVC6FE8eQ","title":"Bench Assisted Push Up"},
+  {"id":"sZHgt60IcY8","title":"Box Jump + Depth Drop"},
+  {"id":"2epg3qYsZpY","title":"Box Jump"},
+  {"id":"w_GzkwUyI5c","title":"Broad Jump"},
+  {"id":"nu3Ib8WMqQk","title":"Chest Supported Row"},
+  {"id":"jL5s6vP0F_Y","title":"Chin Up"},
+  {"id":"PWRaWoWl9Po","title":"DB Lateral Lunge"},
+  {"id":"fUS3RR8lTFQ","title":"Farmer's Carry"},
+  {"id":"DjG3zvDF48s","title":"Flat DB Press"},
+  {"id":"hh1B8HIHMUk","title":"Front Alternating Twist Throw"},
+  {"id":"0XjaR1S0bJY","title":"Glute SMR"},
+  {"id":"nglqlGbxjas","title":"Goblet Carry"},
+  {"id":"yLNvyuYTgx0","title":"Goblet Lateral Lunge"},
+  {"id":"Ht3qBnJfXTk","title":"Goblet March"},
+  {"id":"hRcMjBp5s5Q","title":"Heiden"},
+  {"id":"IKBA_GXxeWk","title":"Incline DB Press"},
+  {"id":"MWXipODkYg8","title":"Landmine Lateral Lunge"},
+  {"id":"kF1t8pNTRd4","title":"Landmine Press"},
+  {"id":"bvfGLFNYmhU","title":"Lat Y Reach"},
+  {"id":"rTWGFW8PJCQ","title":"Lateral Scoop Toss"},
+  {"id":"6lYbWfSdMvE","title":"MB Slam"},
+  {"id":"VL6LnkNIkNw","title":"Pendlay Row"},
+  {"id":"ePRXaWj7pXg","title":"Quad SMR"},
+  {"id":"tqq18KWMIZE","title":"Rack Assisted Push Up"},
+  {"id":"C_jmvFamHKw","title":"RFE Split Squat"},
+  {"id":"S9z_rPBGvGw","title":"Rotational MB Slam"},
+  {"id":"K91nJXBbSWU","title":"Skater Squat"},
+  {"id":"A6hpqOhlbmo","title":"Shuffle Scoop Toss"},
+  {"id":"zmFhtPxXMrk","title":"SL RDL"},
+  {"id":"fqDBk6bMxqE","title":"Split Stance MB Slam"},
+  {"id":"T4aCOB-MXWY","title":"Split Stance Scoop Toss"},
+  {"id":"_rdD6L5OIHU","title":"Suitcase Carry"},
+  {"id":"mCsLmNYFoGE","title":"Suitcase March"},
+  {"id":"UBtDoCsHk_g","title":"Trap Bar DL"},
+  {"id":"Bs1bHJGNKUo","title":"T Spine Extension with Plate"},
+  {"id":"sOPKQ0OqMoI","title":"Pull Up"},
+  {"id":"R5lbfKu8-OQ","title":"Push Up"},
+  {"id":"6tIlUiJlutQ","title":"Waiter Walk"},
+  {"id":"JHfVvtRwcNk","title":"Yoga Plex"},
+  {"id":"v4J2R7GtIak","title":"2 KB Clean and Front Squat"},
+  {"id":"QrVAZJHQYQg","title":"2 KB Clean and Thruster"},
+  {"id":"nmhBpfKf-bE","title":"2 KB Clean and Press"},
+  {"id":"9HBWMhHQSfg","title":"Captain Morgan"},
+  {"id":"AsymcxX0KG0","title":"Assisted Single Leg Bridge"},
+  {"id":"M8Js2fRRmas","title":"Single Leg Bridge"},
+  {"id":"V83NTNZ5DyM","title":"Stability Ball Mountain Climber"},
+  {"id":"lgBaQWjxkB4","title":"Stability Ball Stir the Pot"},
+  {"id":"gLZQm0UBaYc","title":"Elevated Tall Plank"},
+  {"id":"3FHpBVPEVF8","title":"Weighted Sit Up"},
+  {"id":"hE9b1PjTMDE","title":"1 KB Clean and Thruster"},
+  {"id":"n6Oz8XRUQOU","title":"KB Clean and Press"},
+  {"id":"x6TL4pLFzI8","title":"2 KB Clean"},
+  {"id":"zqZjXANJMuk","title":"KB Clean"},
+  {"id":"zp_c2XBPhKM","title":"KB Snatch"},
+  {"id":"bj4tNlmqRTE","title":"1 Arm KB Swing"},
+  {"id":"3fhzCbFRHSI","title":"KB Swing"},
+  {"id":"vJRz5kzFT4I","title":"Wrist Stretch"},
+  {"id":"QBQV1OFMZ2Y","title":"Pigeon Stretch"},
+  {"id":"pX0GoV-eHu4","title":"Active Leg Lowering"},
+  {"id":"bCX0DfMz7Z4","title":"Half Kneeling Hip Flexor #2"},
+  {"id":"sHBEpKtMPLo","title":"Pec On Roller"},
+  {"id":"XJKJcJggLcQ","title":"Renegade Row"},
+  {"id":"9CeMf_ZLKNY","title":"Movement Reset"},
+  {"id":"FbzgJKBKvKo","title":"Wall Slide"},
+  {"id":"V0YstTAdMV4","title":"Supine Adductor/Butterfly Stretch"},
+  {"id":"lJCcRBQBFiw","title":"3 Point DB Row"},
+  {"id":"xvhBbS8Z1cg","title":"Split Squat"},
+  {"id":"oT29STIR_AY","title":"Shoulder Touch"},
+  {"id":"mnjWS3Kzkek","title":"Shoulder Flexion to Wall"},
+  {"id":"s3Hj1vFMc9c","title":"Seated 90 90"},
+  {"id":"pXVhDjRHkKM","title":"Quadruped Extension Rotation"},
+  {"id":"kXfOlDxmUMc","title":"Pry Stretch"},
+  {"id":"JbRIUNGiRKo","title":"Paused Push Up"},
+  {"id":"cXPdMiROedw","title":"KB Hinge"},
+  {"id":"_a5lHVKGD2M","title":"Half Kneeling Press KB and DB"},
+  {"id":"pFgRCDFi5G0","title":"Hip Flexor #1 Stretch"},
+  {"id":"fxFKcfBtQ4w","title":"Floor Press DB KB"},
+  {"id":"xN1eoGLsGVY","title":"Deep Squat with KB Reach"},
+  {"id":"8f8DXFGjpRQ","title":"BW Jump Squat"},
+  {"id":"lQH34hvQBmI","title":"Bodyweight Squat"},
+  {"id":"nGGJopHBhxo","title":"Leg Lowering to Roller"},
+  {"id":"8XZpn85xboI","title":"Long Lever Plank"},
+  {"id":"VB4n3rX5eqA","title":"Suitcase Deadlift"},
+  {"id":"s5Qi8l8fUXo","title":"Short Lever Side Plank"},
+  {"id":"fXa6eAUWHuI","title":"Tall Plank"},
+  {"id":"PfI9Am7VCFU","title":"Band Assisted Leg Lowering"},
+  {"id":"8vGR8YRQBLY","title":"KB Deadlift"},
+  {"id":"jVDByLTm9so","title":"Mountain Climber"},
+  {"id":"WfWKgQVBihQ","title":"Leg Lowering 1.5"},
+  {"id":"E7Xw5C5iYDU","title":"Alternating T"},
+  {"id":"KD4dOK52I7Q","title":"Stability Ball Body Saw"},
+  {"id":"9p3u__nj5F4","title":"DB Walking Lunge"},
+  {"id":"NnBBRc-KDOY","title":"Reverse Lunge Hamstring Stretch"},
+  {"id":"bMIX0o-u2HY","title":"Plate Squat"},
+  {"id":"pM3VQ4rFNlk","title":"Push Up"},
+  {"id":"1XiA5eOBzlo","title":"McGill Curl Up"},
+  {"id":"CXZlGG9TWFE","title":"Valslide Body Saw"},
+  {"id":"IyWWjBCFrqI","title":"Goblet Walking Lunge"},
+  {"id":"zJeJV3zqx3Q","title":"Valslide Roll Out"},
+  {"id":"dKJCehIyKZ0","title":"Clock Plank"},
+  {"id":"a8aL4LKFLMQ","title":"Squat 2 Stand"},
+  {"id":"qPmcSxQlp-0","title":"Reverse Lunge"},
+  {"id":"vdXpwAIPqvM","title":"Bird Dog"},
+  {"id":"1ydPYnf_2rk","title":"Dead Bug Hold"},
+  {"id":"c26Y0VqVkuE","title":"Ankle Stack"},
+  {"id":"f4i08XpSSBE","title":"Side Plank"},
+  {"id":"XoB23IYqvfo","title":"Strider"},
+  {"id":"4YPwrbCfpFU","title":"Reverse Lunge with Twist"},
+  {"id":"GUz1yhKBM_M","title":"Stability Ball Plank"},
+  {"id":"lrm_Ga5RVk8","title":"Stability Ball Jack Knife"},
+  {"id":"cqx0dW8H5tM","title":"SHELC"},
+  {"id":"OxPe6xJr2Yc","title":"Dying Bug"},
+  {"id":"Q2TXFh2jjFE","title":"Stability Ball Roll Out"},
+  {"id":"jqVNz5LCvVA","title":"Feet Elevated Side Plank"},
+  {"id":"GmVCY5SMHWA","title":"Supine Bridge"},
+  {"id":"xAJjkFGR2gs","title":"Side Plank and Abduction"},
+  {"id":"ybVB6dEL3cM","title":"T stabilization"},
+  {"id":"t0RnqVRCo30","title":"Tall Plank Reach"},
+  {"id":"UoQivKAMBnI","title":"Single Leg Hip Lift"},
+  {"id":"QLiOW7T4bFM","title":"Cat Camel"},
+  {"id":"mZ-MbGn_UJE","title":"Get Up Sit Up"},
+  {"id":"LiPQMc0kgHs","title":"Spread Eagle Sit Up"},
+  {"id":"oa9etSBGRiM","title":"Quadruped Hip Extension"},
+  {"id":"VzLlMICfBwA","title":"PVC Hip Hinge"},
+  {"id":"5xA1WlPmkWI","title":"Contralateral Anterior Reach (CLAR)"},
+  {"id":"o0KHBtlJPYA","title":"Fire Hydrants"},
+  {"id":"k2RJSMk0b30","title":"Sprinter Sit Up"},
+  {"id":"lRDqnIAqYkA","title":"Yoga Push Up"},
+  {"id":"jyHR_IBMR4c","title":"Good Mornings"},
+  {"id":"hTn6vS2BXOU","title":"Supine Bridge and Alternating March"},
+  {"id":"y1YkJkBFPcQ","title":"Inch Worm"},
+  {"id":"gxLR77AGKOE","title":"Lateral Lunge"},
+  {"id":"GtMKqT18vQE","title":"Straight Arm Straight Leg Sit Up"},
+  {"id":"5x4C4ZQZQ6E","title":"DB RDL"}
+];
+
+let exercises = [];
+let timers = {};
+
+function addExercise() {
+  const id = Date.now();
+  exercises.push({ id, name: '', sets: '', reps: '', cues: '', video: null, section: 'main', vq: '' });
+  const list = document.getElementById('exercises-list');
+  const card = document.createElement('div');
+  card.className = 'ex-card';
+  card.id = 'card-' + id;
+  card.innerHTML = buildCardHTML(exercises[exercises.length - 1], exercises.length);
+  list.appendChild(card);
+}
+
+function buildCardHTML(ex, num) {
+  return `
+    <div class="ex-top">
+      <span class="ex-num">Exercise ${num}</span>
+      <button class="remove-btn" onclick="removeExercise(${ex.id})">×</button>
+    </div>
+    <div class="section-pills" id="pills-${ex.id}">
+      <button class="pill ${ex.section==='warmup'?'active':''}" onclick="setSection(${ex.id},'warmup')">Warm-up</button>
+      <button class="pill ${ex.section==='main'?'active':''}" onclick="setSection(${ex.id},'main')">Main lift</button>
+      <button class="pill ${ex.section==='accessory'?'active':''}" onclick="setSection(${ex.id},'accessory')">Accessory</button>
+    </div>
+    <div class="ex-row">
+      <input type="text" placeholder="Exercise name" value="${ex.name}" oninput="setField(${ex.id},'name',this.value)" />
+      <input type="text" placeholder="Sets" value="${ex.sets}" oninput="setField(${ex.id},'sets',this.value)" />
+      <input type="text" placeholder="Reps" value="${ex.reps}" oninput="setField(${ex.id},'reps',this.value)" />
+    </div>
+    <div id="video-area-${ex.id}">
+      ${searchBoxHTML(ex.id)}
+    </div>
+    <textarea class="cues-input" placeholder="Coaching cues (optional)" oninput="setField(${ex.id},'cues',this.value)">${ex.cues}</textarea>
+  `;
+}
+
+function searchBoxHTML(id) {
+  return `<div class="search-wrap">
+    <input class="search-input" type="text" placeholder="Search your Grove videos..." oninput="triggerSearch(${id},this.value)" />
+    <div class="results-list" id="res-${id}" style="display:none;"></div>
+  </div>`;
+}
+
+function selectedVideoHTML(ex) {
+  return `<div class="selected-video">
+    <img src="https://img.youtube.com/vi/${ex.video.id}/mqdefault.jpg" />
+    <span class="vtitle">${ex.video.title}</span>
+    <button class="clear-btn" onclick="clearVideo(${ex.id})">Clear</button>
+  </div>`;
+}
+
+function removeExercise(id) {
+  exercises = exercises.filter(e => e.id !== id);
+  const card = document.getElementById('card-' + id);
+  if (card) card.remove();
+  exercises.forEach((ex, i) => {
+    const numEl = document.querySelector('#card-' + ex.id + ' .ex-num');
+    if (numEl) numEl.textContent = 'Exercise ' + (i + 1);
+  });
+}
+
+function setSection(id, s) {
+  const ex = exercises.find(e => e.id === id);
+  if (!ex) return;
+  ex.section = s;
+  const pillsEl = document.getElementById('pills-' + id);
+  if (pillsEl) {
+    pillsEl.querySelectorAll('.pill').forEach(btn => {
+      const map = { 'Warm-up': 'warmup', 'Main lift': 'main', 'Accessory': 'accessory' };
+      btn.classList.toggle('active', map[btn.textContent] === s);
+    });
+  }
+}
+
+function setField(id, f, v) {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) ex[f] = v;
+}
+
+function clearVideo(id) {
+  const ex = exercises.find(e => e.id === id);
+  if (!ex) return;
+  ex.video = null;
+  ex.vq = '';
+  const area = document.getElementById('video-area-' + id);
+  if (area) area.innerHTML = searchBoxHTML(id);
+}
+
+function selectVideo(id, vid, title) {
+  const ex = exercises.find(e => e.id === id);
+  if (!ex) return;
+  ex.video = { id: vid, title };
+  const area = document.getElementById('video-area-' + id);
+  if (area) area.innerHTML = selectedVideoHTML(ex);
+}
+
+function triggerSearch(id, q) {
+  setField(id, 'vq', q);
+  clearTimeout(timers[id]);
+  const r = document.getElementById('res-' + id);
+  if (!q || q.length < 2) {
+    if (r) r.style.display = 'none';
+    return;
+  }
+  timers[id] = setTimeout(() => doSearch(id, q), 150);
+}
+
+function doSearch(id, q) {
+  const r = document.getElementById('res-' + id);
+  if (!r) return;
+  const matches = VIDEOS.filter(v => v.title.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+  if (!matches.length) {
+    r.style.display = 'block';
+    r.innerHTML = '<div class="searching">No videos found</div>';
+    return;
+  }
+  r.style.display = 'block';
+  r.innerHTML = matches.map(v => {
+    const safeTitle = v.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return `<div class="result-item" onclick="selectVideo(${id},'${v.id}','${safeTitle}')">
+      <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" />
+      <span>${v.title}</span>
+    </div>`;
+  }).join('');
+}
+
+function generate() {
+  const client = document.getElementById('client-name').value || 'Client';
+  const title = document.getElementById('program-title').value || client + "'s Program";
+  if (!exercises.length) { alert('Add at least one exercise.'); return; }
+  const warmup = exercises.filter(e => e.section === 'warmup');
+  const main = exercises.filter(e => e.section === 'main');
+  const acc = exercises.filter(e => e.section === 'accessory');
+  const total = exercises.length;
+  const sectionLabels = { warmup: 'Warm-Up', main: 'Main Lift', accessory: 'Accessory' };
+  const sectionSets = { warmup: '1 Set', main: '2–3 Sets', accessory: '2 Sets' };
+  const summaryParts = [warmup.length?'Warm-Up':'', main.length?'Main Lift':'', acc.length?'Accessory':''].filter(Boolean).join(' | ');
+  let idx = 0;
+  const exBlock = (ex) => {
+    const i = idx++;
+    return `<div class="exercise-item" id="ex-${i}">
+  <div class="exercise-row" onclick="toggleExpand(${i})">
+    <div class="checkbox-wrap">
+      <input type="checkbox" id="cb-${i}" onchange="updateProgress();event.stopPropagation();" onclick="event.stopPropagation()">
+      <label for="cb-${i}" class="checkbox-label" onclick="event.stopPropagation()"></label>
+    </div>
+    <div class="exercise-info">
+      <span class="exercise-name">${ex.name || 'Exercise'}</span>
+      ${ex.cues ? `<span class="exercise-sub">${ex.cues}</span>` : ''}
+    </div>
+    <span class="exercise-reps">${[ex.sets ? ex.sets + ' sets' : '', ex.reps || ''].filter(Boolean).join(' · ')}</span>
+    <span class="expand-arrow" id="arrow-${i}">&#9658;</span>
+  </div>
+  <div class="exercise-detail" id="detail-${i}" style="display:none;">
+    ${ex.video ? `<div class="video-wrap"><a href="https://youtu.be/${ex.video.id}" target="_blank"><img src="https://img.youtube.com/vi/${ex.video.id}/hqdefault.jpg" alt="${ex.name}" /><span class="play-label">&#9654; Tap to watch on YouTube</span></a></div>` : '<p style="font-size:13px;color:#aaa;padding:4px 0;">No video attached</p>'}
+  </div>
+</div>`;
+  };
+  const section = (key, items) => {
+    if (!items.length) return '';
+    return `<div class="section-block">
+  <div class="section-header">
+    <span class="section-title">${sectionLabels[key]}</span>
+    <span class="section-badge">${sectionSets[key]}</span>
+  </div>
+  ${items.map(exBlock).join('')}
+</div>`;
+  };
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f1ec;color:#1a1a1a;min-height:100vh}
+.page-header{padding:2rem 1.5rem 1rem;max-width:680px;margin:0 auto}
+.grove-label{font-size:11px;letter-spacing:.12em;color:#2a7a5a;text-transform:uppercase;font-weight:600;margin-bottom:.5rem}
+h1{font-size:2rem;font-weight:700;color:#0d1b2a;line-height:1.2;margin-bottom:.75rem}
+.summary-line{font-size:13px;color:#666;margin-bottom:1.25rem}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.progress-count,.progress-pct{font-size:13px;color:#555}
+.progress-bar-bg{background:#ddd;border-radius:4px;height:6px;margin-bottom:1.5rem}
+.progress-bar-fill{background:#2a7a5a;height:6px;border-radius:4px;transition:width .3s ease;width:0%}
+.container{max-width:680px;margin:0 auto;padding:0 1rem 3rem}
+.section-block{margin-bottom:2rem}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#2a7a5a}
+.section-badge{font-size:11px;font-weight:600;background:#2a7a5a;color:#fff;padding:3px 10px;border-radius:20px}
+.exercise-item{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;border:1px solid #e8e4dc;transition:opacity .2s}
+.exercise-row{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.exercise-row:active{background:#faf8f4}
+.checkbox-wrap{position:relative;flex-shrink:0}
+.checkbox-wrap input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+.checkbox-label{display:block;width:22px;height:22px;border:2px solid #ccc;border-radius:6px;cursor:pointer;transition:all .2s}
+.checkbox-wrap input:checked + .checkbox-label{background:#2a7a5a;border-color:#2a7a5a}
+.checkbox-wrap input:checked + .checkbox-label::after{content:'';display:block;width:5px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);margin:3px 0 0 6px}
+.exercise-info{flex:1;min-width:0}
+.exercise-name{display:block;font-size:15px;font-weight:600;color:#0d1b2a}
+.exercise-sub{display:block;font-size:12px;color:#888;margin-top:2px}
+.exercise-reps{font-size:13px;font-weight:600;color:#2a7a5a;white-space:nowrap;flex-shrink:0}
+.expand-arrow{font-size:10px;color:#aaa;transition:transform .2s;flex-shrink:0}
+.expand-arrow.open{transform:rotate(90deg)}
+.exercise-detail{padding:0 16px 14px 50px}
+.video-wrap{border-radius:8px;overflow:hidden}
+.video-wrap a{display:block;position:relative}
+.video-wrap img{width:100%;display:block;border-radius:8px}
+.play-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:4px 10px;border-radius:4px}
+.exercise-item.done{opacity:.6}
+.exercise-item.done .exercise-name{text-decoration:line-through;color:#aaa}
+.reset-btn{display:block;width:100%;margin-top:.5rem;padding:12px;background:transparent;border:1px solid #ccc;border-radius:10px;font-size:13px;color:#888;cursor:pointer;text-align:center}
+.reset-btn:active{background:#ede9e0}
+</style>
+</head>
+<body>
+<div class="page-header">
+  <img src="https://shamdonk.github.io/The-Grove-Program-Builder/Logo.PNG" alt="The Grove Strength & Conditioning" style="height:80px;margin-bottom:.75rem;display:block;">
+  <h1>${title}</h1>
+  <div class="summary-line">${summaryParts}&nbsp;&nbsp;|&nbsp;&nbsp;${total} exercises</div>
+  <div class="progress-row">
+    <span class="progress-count" id="prog-count">0 of ${total} complete</span>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar"></div></div>
+</div>
+<div class="container">
+  ${section('warmup', warmup)}
+  ${section('main', main)}
+  ${section('accessory', acc)}
+  <button class="reset-btn" onclick="resetAll()">Reset All Checkboxes</button>
+</div>
+<script>
+function toggleExpand(i){var d=document.getElementById('detail-'+i);var a=document.getElementById('arrow-'+i);var open=d.style.display==='block';d.style.display=open?'none':'block';a.classList.toggle('open',!open);}
+function updateProgress(){var all=document.querySelectorAll('.checkbox-wrap input');var checked=document.querySelectorAll('.checkbox-wrap input:checked');var t=all.length,c=checked.length;document.getElementById('prog-count').textContent=c+' of '+t+' complete';document.getElementById('prog-pct').textContent=Math.round(c/t*100)+'%';document.getElementById('prog-bar').style.width=(c/t*100)+'%';all.forEach(function(cb,i){var item=document.getElementById('ex-'+i);if(item)item.classList.toggle('done',cb.checked);});}
+function resetAll(){document.querySelectorAll('.checkbox-wrap input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('.exercise-item').forEach(function(el){el.classList.remove('done');});updateProgress();}
+<\/script>
+</body>
+</html>`;
+  document.getElementById('output-box').textContent = html;
+  document.getElementById('output-area').classList.add('visible');
+  document.getElementById('output-area').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyOutput() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy HTML', 2000);
+  });
+}
+
+function downloadOutput() {
+  const text = document.getElementById('output-box').textContent;
+  const client = document.getElementById('client-name').value || 'client';
+  const filename = client.toLowerCase().replace(/\s+/g, '-') + '-program.html';
+  const blob = new Blob([text], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+addExercise();
+setTimeout(addExercise, 50);
+setTimeout(addExercise, 100);
+</script>
+</body>
+</html>
